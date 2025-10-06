@@ -39,3 +39,25 @@ END
 --kontroll
 SELECT dbo.fn_GetEmployeeNameById(1);
 
+---- Nüüd muudame funktsiooni ja krüpteerime selle ära
+ALTER FUNCTION fn_GetEmployeeNameById(@Id INT)
+RETURNS NVARCHAR(20)
+WITH ENCRYPTION
+AS
+BEGIN
+RETURN (SELECT FirstName FROM DimEmployee WHERE EmployeeKey = @Id)
+END
+--kontroll
+SELECT dbo.fn_GetEmployeeNameById(1);
+
+---- Nüüd muuda funktsiooni ja kasuta käsklust WITH SCHEMABINDING valikut
+ALTER FUNCTION fn_GetEmployeeNameById(@Id INT)
+RETURNS NVARCHAR(20)
+WITH ENCRYPTION
+AS
+BEGIN
+RETURN (SELECT FirstName FROM DimEmployee WHERE EmployeeKey = @Id)
+END
+
+--kontroll
+SELECT dbo.fn_GetEmployeeNameById(1);
