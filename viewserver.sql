@@ -56,3 +56,39 @@ ALTER VIEW
 -- Kui soovid kustutada view-d 
 DROP VIEW vWName
 
+--view uuendused nr 40
+
+--view, mis tagastab peaaegu kõik veerud, aga va Salary veerg.
+CREATE VIEW vWEmployeesDataExceptSalary
+AS
+SELECT EmployeeKey, FirstName, Gender, DepartmentName
+FROM DimEmployee
+--kontroll
+SELECT * FROM vWEmployeesDataExceptSalary
+
+-- Järgnev päring uuendab Name veerus olevat nime Mike Mikey peale. 
+UPDATE vWEmployeesDataExSalary
+SET FirstName = 'Mikey' WHERE EmployeeKey = 2
+--kontroll
+SELECT * FROM DimEmployee
+
+
+-- Loome view, mis ühendab kaks eelpool käsitletud tabelit ja annab sellise tulemuse:Samas on võimalik sisestada ja kustutada ridu baastabelis ning kasutada view-d.
+DELETE FROM vWEmployeesDataExSalary WHERE EmployeeKey = 2
+INSERT INTO vWEmployeesDataExSalary VALUES (2, 'Mikey', 'M', 2)
+
+-- Loome view, mis ühendab kaks eelpool käsitletud tabelit ja annab sellise tulemuse
+CREATE VIEW vWEmployeeDetailsByDept
+AS
+SELECT EmployeeKey, FirstName, Gender, DepartmentName
+FROM DimEmployee
+JOIN DimDepartmentGroup
+ON DimEmployee.DepartmentName = DimDepartmentGroup.DepartmentGroupKey
+--kontroll
+SELECT * FROM vWEmployeeDetailsByDept
+
+-- Nüüd uuendame John osakonda HR pealt Corporate peale. Hetkel on kaks töötajat HR osakonnas
+UPDATE vWEmployeeDetailsByDept
+SET DepartmentName = 'Corporate' WHERE FirstName = 'John'
+--kontroll
+SELECT * FROM DimEmployee
