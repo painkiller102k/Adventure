@@ -1,4 +1,4 @@
--- S¸ntaks loomaks DDL trigereid
+-- S√ºntaks loomaks DDL trigereid
 CREATE TRIGGER [Trigger_Name]
 ON [Scope(Server/Database)]
 FOR [EventType1, EventType2, EventType3]
@@ -7,7 +7,7 @@ BEGIN
 -- Trigger Body
 END
 
--- J‰rgnev trigger k‰ivitab vastuseks CREATE_TABLE DDL s¸ndmuse: sp_rename
+-- J√§rgnev trigger k√§ivitab vastuseks CREATE_TABLE DDL s√ºndmuse: sp_rename
 CREATE TRIGGER FirstTrigger
 ON Database
 FOR CREATE_TABLE
@@ -15,10 +15,10 @@ AS
 BEGIN
 PRINT 'New table created'
 END
--- Kui sa j‰rgnevat koodi k‰ivitad, siis trigger l‰heb automaatselt k‰ima ja prindib v‰lja sınumi: uus tabel on loodud.
+-- Kui sa j√§rgnevat koodi k√§ivitad, siis trigger l√§heb automaatselt k√§ima ja prindib v√§lja s√µnumi: uus tabel on loodud.
 CREATE TABLE test (id INT)
 
--- Kui soovid, et see trigger k‰ivitatakse mitu korda nagu muuda ja kustuta tabel, siis eralda s¸ndmused ning kasuta koma.
+-- Kui soovid, et see trigger k√§ivitatakse mitu korda nagu muuda ja kustuta tabel, siis eralda s√ºndmused ning kasuta koma.
 ALTER TRIGGER FirstTrigger 
 ON Database
 FOR CREATE_TABLE, ALTER_TABLE, DROP_TABLE
@@ -27,7 +27,7 @@ BEGIN
 PRINT 'A table just been created, modified or deleted'
 END
 
--- N¸¸d vaatame n‰idet, kuidas ‰ra hoida kasutajatel loomaks, muutmaks vıi kustatamiseks tabelit. 
+-- N√º√ºd vaatame n√§idet, kuidas √§ra hoida kasutajatel loomaks, muutmaks v√µi kustatamiseks tabelit. 
 ALTER TRIGGER FirstTrigger 
 ON Database
 FOR CREATE_TABLE, ALTER_TABLE, DROP_TABLE
@@ -42,7 +42,7 @@ DISABLE TRIGGER FirstTrigger ON DATABASE
 -- Kuidas kustutada triggerit
 DROP TRIGGER FirstTrigger ON DATABASE
 
--- J‰rgnev trigger k‰ivitub, kui peaksid kasutama sp_rename k‰sklust s¸steemi stored procedurite muutmisel.
+-- J√§rgnev trigger k√§ivitub, kui peaksid kasutama sp_rename k√§sklust s√ºsteemi stored procedurite muutmisel.
 CREATE TRIGGER RenameTable 
 ON Database
 FOR RENAME
@@ -52,7 +52,41 @@ ROLLBACK
 PRINT 'You just renamed something'
 END
 
--- J‰rgnev kood muudab TestTable nime NewTestTable nimeks
+-- J√§rgnev kood muudab TestTable nime NewTestTable nimeks
 sp_rename 'TestTable', 'NewTestTable' 
--- J‰rgnev kood muudab Id veergu NewTestTabel tabelis NewId peale
+-- J√§rgnev kood muudab Id veergu NewTestTabel tabelis NewId peale
 sp_rename 'NewTestTable.Id' , 'NewId', 'column'
+
+
+--server scoped ddl triggerid
+--nr93
+
+-- K√§sitletav trigger on andmebaasi vahemikus olev trigger. 
+--See ei luba luua, muuta ja kustutada tabeleid andmebaasist sinna, kuhu see on loodud
+CREATE TRIGGER tr_DatabaseScopeTrigger 
+ON Database
+FOR CREATE_TABLE, ALTER_TABLE, DROP_TABLE
+AS
+BEGIN
+ROLLBACK
+PRINT 'You cannot create, modify, alter or drop a table in the current database'
+END
+
+--Loo Serveri-vahemikus olev DDL trigger: 
+--See on nagu andembaasi vahemiku trigger, aga erinevus seisneb, et sa pead lisama koodis s√µna ALL peale:
+CREATE TRIGGER tr_ServerScopeTrigger
+ON ALL SERVER
+FOR CREATE_TABLE, ALTER_TABLE, DROP_TABLE
+AS
+BEGIN
+ROLLBACK
+PRINT 'You cannot create, modify, alter or drop a table in the current database'
+END
+
+
+-- Kuidas saab Serveri ulatuses olevat DDL trigerit kinni panna
+DISABLE TRIGGER tr_ServerScopeTrigger ON ALL SERVER
+-- Kuidas lubada Serveri ulatuses olevat DDL trigerit
+ENABLE TRIGGER tr_ServerScopeTrigger ON ALL SERVER
+-- Kuidas kustutada serveri ulatuses olevat DDL trigerit
+DROP TRIGGER tr_ServerScopeTrigger ON ALL SERVER
